@@ -126,50 +126,50 @@ rt_err_t gpio_exti_control(gpio_device *gpio, rt_uint8_t cmd, void *arg)
 
 void gpio_exti_out(gpio_device *gpio, rt_uint8_t data)
 {
-  struct gpio_exti_user_data *user = (struct gpio_exti_user_data*)gpio->parent.user_data;
+    struct gpio_exti_user_data *user = (struct gpio_exti_user_data*)gpio->parent.user_data;
 
-  if (gpio->parent.flag & RT_DEVICE_FLAG_WRONLY)
-  {
-    if (data)
+    if (gpio->parent.flag & RT_DEVICE_FLAG_WRONLY)
     {
-      GPIO_SetBits(user->gpiox,user->gpio_pinx);
+        if (data)
+        {
+            GPIO_SetBits(user->gpiox,user->gpio_pinx);
+        }
+        else
+        {
+            GPIO_ResetBits(user->gpiox,user->gpio_pinx);
+        }
     }
     else
     {
-      GPIO_ResetBits(user->gpiox,user->gpio_pinx);
-    }
-  }
-  else
-  {
 #ifdef RT_USING_FINSH
-    rt_kprintf("gpio exti device <%s> is can`t write! please check device flag RT_DEVICE_FLAG_WRONLY\n", user->name);
+        rt_kprintf("gpio exti device <%s> is can`t write! please check device flag RT_DEVICE_FLAG_WRONLY\n", user->name);
 #endif
-  }
+    }
 }
 
 rt_uint8_t gpio_exti_intput(gpio_device *gpio)
 {
-  struct gpio_exti_user_data* user = (struct gpio_exti_user_data *)gpio->parent.user_data;
+    struct gpio_exti_user_data* user = (struct gpio_exti_user_data *)gpio->parent.user_data;
 
-  if (gpio->parent.flag & RT_DEVICE_FLAG_RDONLY)
-  {
-    return GPIO_ReadInputDataBit(user->gpiox,user->gpio_pinx);
-  }
-  else
-  {
+    if (gpio->parent.flag & RT_DEVICE_FLAG_RDONLY)
+    {
+        return GPIO_ReadInputDataBit(user->gpiox,user->gpio_pinx);
+    }
+    else
+    {
 #ifdef RT_USING_FINSH
-    rt_kprintf("gpio exti device <%s> is can`t read! please check device flag RT_DEVICE_FLAG_RDONLY\n", user->name);
+        rt_kprintf("gpio exti device <%s> is can`t read! please check device flag RT_DEVICE_FLAG_RDONLY\n", user->name);
 #endif
     return 0;
-  }
+    }
 }
 
 struct rt_gpio_ops gpio_exti_user_ops= 
 {
-  gpio_exti_configure,
-  gpio_exti_control,
-  gpio_exti_out,
-  gpio_exti_intput
+    gpio_exti_configure,
+    gpio_exti_control,
+    gpio_exti_out,
+    gpio_exti_intput
 };
 
 /*******************************************************
@@ -179,88 +179,253 @@ struct rt_gpio_ops gpio_exti_user_ops=
  *******************************************************/
 
 /* key detect device pd10 */
-gpio_device key_detect_device;
-rt_timer_t key_detect_exti_timer = RT_NULL;
+gpio_device key1_detect_device;
+rt_timer_t key1_detect_exti_timer = RT_NULL;
 
-void key_detect_exti_timeout(void *parameters)
+void key1_detect_exti_timeout(void *parameters)
 {
 
-  //time_t time;
+    //time_t time;
 
-  rt_device_t device = RT_NULL;
-  uint8_t data;
+    rt_device_t device = RT_NULL;
+    uint8_t data;
 
-  device = rt_device_find(DEVICE_NAME_KEY_DETECT);
-  if (device != RT_NULL)
-  {
-    rt_device_read(device,0,&data,0);
-    if (data == KEY_DETECT_STATUS) // rfid key is plugin
+    device = rt_device_find(DEVICE_NAME_KEY1_DETECT);
+    if (device != RT_NULL)
     {
-            rt_kprintf("it is key detect!\n");
-      // produce mail
-      //rt_device_control(rtc_device, RT_DEVICE_CTRL_RTC_GET_TIME, &time);
+        rt_device_read(device,0,&data,0);
+        if (data == KEY1_DETECT_STATUS) // rfid key is plugin
+        {
+                rt_kprintf("it is key1 detect!\n");
+          // produce mail
+          //rt_device_control(rtc_device, RT_DEVICE_CTRL_RTC_GET_TIME, &time);
 
-      // send mail
-      //send_alarm_mail(ALARM_TYPE_RFID_KEY_DETECT, ALARM_PROCESS_FLAG_LOCAL, RFID_KEY_DETECT_STATUS, time);
+          // send mail
+          //send_alarm_mail(ALARM_TYPE_RFID_key1_detect, ALARM_PROCESS_FLAG_LOCAL, RFID_key1_detect_STATUS, time);
+        }
+        rt_device_control(device, RT_DEVICE_CTRL_UNMASK_EXTI, (void *)0);
     }
-    rt_device_control(device, RT_DEVICE_CTRL_UNMASK_EXTI, (void *)0);
-  }
 
-  rt_timer_stop(key_detect_exti_timer);
+    rt_timer_stop(key1_detect_exti_timer);
 }
 
 
-rt_err_t key_detect_rx_ind(rt_device_t dev, rt_size_t size)
+rt_err_t key1_detect_rx_ind(rt_device_t dev, rt_size_t size)
 {
-  //gpio_device *gpio = RT_NULL;
-  //gpio = (gpio_device *)dev;
-  rt_device_t device = RT_NULL;
+    //gpio_device *gpio = RT_NULL;
+    //gpio = (gpio_device *)dev;
+    rt_device_t device = RT_NULL;
 
-  device = rt_device_find(DEVICE_NAME_KEY_DETECT);
-  RT_ASSERT(device != RT_NULL);
-  rt_device_control(device, RT_DEVICE_CTRL_MASK_EXTI, (void *)0);
-  rt_timer_start(key_detect_exti_timer);
-	
-  return RT_EOK;
+    device = rt_device_find(DEVICE_NAME_KEY1_DETECT);
+    RT_ASSERT(device != RT_NULL);
+    rt_device_control(device, RT_DEVICE_CTRL_MASK_EXTI, (void *)0);
+    rt_timer_start(key1_detect_exti_timer);
+
+    return RT_EOK;
 }
 
-struct gpio_exti_user_data key_detect_user_data = 
+struct gpio_exti_user_data key1_detect_user_data = 
 {
-  DEVICE_NAME_KEY_DETECT,
-  GPIOE,
-  GPIO_Pin_7,
-  GPIO_Mode_IN_FLOATING,
-  GPIO_Speed_50MHz,
-  RCC_APB2Periph_GPIOE |RCC_APB2Periph_AFIO,
-  GPIO_PortSourceGPIOE,
-  GPIO_PinSource7,
-  EXTI_Line7,
-  EXTI_Mode_Interrupt,
-  KEY_EXTI_TRIGGER_MODE,
-  EXTI9_5_IRQn,
-  1,
-  5,
-  key_detect_rx_ind,
+    DEVICE_NAME_KEY1_DETECT,
+    GPIOA,
+    GPIO_Pin_12,
+    GPIO_Mode_IN_FLOATING,
+    GPIO_Speed_50MHz,
+    RCC_APB2Periph_GPIOA |RCC_APB2Periph_AFIO,
+    GPIO_PortSourceGPIOA,
+    GPIO_PinSource12,
+    EXTI_Line12,
+    EXTI_Mode_Interrupt,
+    KEY1_EXTI_TRIGGER_MODE,
+    EXTI15_10_IRQn,
+    1,
+    5,
+    key1_detect_rx_ind,
 };
 
-int rt_hw_key_detect_register(void)
+int rt_hw_key1_detect_register(void)
 {
-    gpio_device *gpio_device = &key_detect_device;
-    struct gpio_exti_user_data *gpio_user_data = &key_detect_user_data;
+    gpio_device *gpio_device = &key1_detect_device;
+    struct gpio_exti_user_data *gpio_user_data = &key1_detect_user_data;
 
     gpio_device->ops = &gpio_exti_user_ops;
 
     rt_hw_gpio_register(gpio_device, gpio_user_data->name, (RT_DEVICE_FLAG_RDWR | RT_DEVICE_FLAG_INT_RX), gpio_user_data);
-    key_detect_exti_timer = rt_timer_create("k_exti",
-                                           key_detect_exti_timeout,
+    key1_detect_exti_timer = rt_timer_create("k1_exti",
+                                           key1_detect_exti_timeout,
                                            RT_NULL,
-                                           KEY_INT_INTERVAL,
+                                           KEY1_INT_INTERVAL,
                                            RT_TIMER_FLAG_ONE_SHOT);
     rt_device_set_rx_indicate((rt_device_t)gpio_device, gpio_user_data->gpio_exti_rx_indicate);
 
     return 0;
 }
 
+/* key detect device pd10 */
+gpio_device key2_detect_device;
+rt_timer_t key2_detect_exti_timer = RT_NULL;
+
+void key2_detect_exti_timeout(void *parameters)
+{
+
+    //time_t time;
+
+    rt_device_t device = RT_NULL;
+    uint8_t data;
+
+    device = rt_device_find(DEVICE_NAME_KEY2_DETECT);
+    if (device != RT_NULL)
+    {
+    rt_device_read(device,0,&data,0);
+    if (data == KEY2_DETECT_STATUS) // rfid key is plugin
+    {
+            rt_kprintf("it is key2 detect!\n");
+      // produce mail
+      //rt_device_control(rtc_device, RT_DEVICE_CTRL_RTC_GET_TIME, &time);
+
+      // send mail
+      //send_alarm_mail(ALARM_TYPE_RFID_key2_detect, ALARM_PROCESS_FLAG_LOCAL, RFID_key2_detect_STATUS, time);
+    }
+    rt_device_control(device, RT_DEVICE_CTRL_UNMASK_EXTI, (void *)0);
+    }
+
+    rt_timer_stop(key2_detect_exti_timer);
+}
+
+
+rt_err_t key2_detect_rx_ind(rt_device_t dev, rt_size_t size)
+{
+    //gpio_device *gpio = RT_NULL;
+    //gpio = (gpio_device *)dev;
+    rt_device_t device = RT_NULL;
+
+    device = rt_device_find(DEVICE_NAME_KEY2_DETECT);
+    RT_ASSERT(device != RT_NULL);
+    rt_device_control(device, RT_DEVICE_CTRL_MASK_EXTI, (void *)0);
+    rt_timer_start(key2_detect_exti_timer);
+
+    return RT_EOK;
+}
+
+struct gpio_exti_user_data key2_detect_user_data = 
+{
+    DEVICE_NAME_KEY2_DETECT,
+    GPIOB,
+    GPIO_Pin_6,
+    GPIO_Mode_IN_FLOATING,
+    GPIO_Speed_50MHz,
+    RCC_APB2Periph_GPIOB |RCC_APB2Periph_AFIO,
+    GPIO_PortSourceGPIOB,
+    GPIO_PinSource6,
+    EXTI_Line6,
+    EXTI_Mode_Interrupt,
+    KEY2_EXTI_TRIGGER_MODE,
+    EXTI9_5_IRQn,
+    1,
+    5,
+    key2_detect_rx_ind,
+};
+
+int rt_hw_key2_detect_register(void)
+{
+    gpio_device *gpio_device = &key2_detect_device;
+    struct gpio_exti_user_data *gpio_user_data = &key2_detect_user_data;
+
+    gpio_device->ops = &gpio_exti_user_ops;
+
+    rt_hw_gpio_register(gpio_device, gpio_user_data->name, (RT_DEVICE_FLAG_RDWR | RT_DEVICE_FLAG_INT_RX), gpio_user_data);
+    key2_detect_exti_timer = rt_timer_create("k2_exti",
+                                           key2_detect_exti_timeout,
+                                           RT_NULL,
+                                           KEY2_INT_INTERVAL,
+                                           RT_TIMER_FLAG_ONE_SHOT);
+    rt_device_set_rx_indicate((rt_device_t)gpio_device, gpio_user_data->gpio_exti_rx_indicate);
+
+    return 0;
+}
+
+/* key detect device pd10 */
+gpio_device key3_detect_device;
+rt_timer_t key3_detect_exti_timer = RT_NULL;
+
+void key3_detect_exti_timeout(void *parameters)
+{
+
+    //time_t time;
+
+    rt_device_t device = RT_NULL;
+    uint8_t data;
+
+    device = rt_device_find(DEVICE_NAME_KEY3_DETECT);
+    if (device != RT_NULL)
+    {
+    rt_device_read(device,0,&data,0);
+    if (data == KEY3_DETECT_STATUS) // rfid key is plugin
+    {
+            rt_kprintf("it is key3 detect!\n");
+      // produce mail
+      //rt_device_control(rtc_device, RT_DEVICE_CTRL_RTC_GET_TIME, &time);
+
+      // send mail
+      //send_alarm_mail(ALARM_TYPE_RFID_key3_detect, ALARM_PROCESS_FLAG_LOCAL, RFID_key3_detect_STATUS, time);
+    }
+    rt_device_control(device, RT_DEVICE_CTRL_UNMASK_EXTI, (void *)0);
+    }
+
+    rt_timer_stop(key3_detect_exti_timer);
+}
+
+
+rt_err_t key3_detect_rx_ind(rt_device_t dev, rt_size_t size)
+{
+    //gpio_device *gpio = RT_NULL;
+    //gpio = (gpio_device *)dev;
+    rt_device_t device = RT_NULL;
+
+    device = rt_device_find(DEVICE_NAME_KEY3_DETECT);
+    RT_ASSERT(device != RT_NULL);
+    rt_device_control(device, RT_DEVICE_CTRL_MASK_EXTI, (void *)0);
+    rt_timer_start(key3_detect_exti_timer);
+
+    return RT_EOK;
+}
+
+struct gpio_exti_user_data key3_detect_user_data = 
+{
+    DEVICE_NAME_KEY3_DETECT,
+    GPIOB,
+    GPIO_Pin_5,
+    GPIO_Mode_IN_FLOATING,
+    GPIO_Speed_50MHz,
+    RCC_APB2Periph_GPIOB |RCC_APB2Periph_AFIO,
+    GPIO_PortSourceGPIOB,
+    GPIO_PinSource5,
+    EXTI_Line5,
+    EXTI_Mode_Interrupt,
+    KEY3_EXTI_TRIGGER_MODE,
+    EXTI9_5_IRQn,
+    1,
+    5,
+    key3_detect_rx_ind,
+};
+
+int rt_hw_key3_detect_register(void)
+{
+    gpio_device *gpio_device = &key3_detect_device;
+    struct gpio_exti_user_data *gpio_user_data = &key3_detect_user_data;
+
+    gpio_device->ops = &gpio_exti_user_ops;
+
+    rt_hw_gpio_register(gpio_device, gpio_user_data->name, (RT_DEVICE_FLAG_RDWR | RT_DEVICE_FLAG_INT_RX), gpio_user_data);
+    key3_detect_exti_timer = rt_timer_create("k3_exti",
+                                           key3_detect_exti_timeout,
+                                           RT_NULL,
+                                           KEY3_INT_INTERVAL,
+                                           RT_TIMER_FLAG_ONE_SHOT);
+    rt_device_set_rx_indicate((rt_device_t)gpio_device, gpio_user_data->gpio_exti_rx_indicate);
+
+    return 0;
+}
 /* motor_status device pd8 */
 /*rt_err_t motor_status_rx_ind(rt_device_t dev, rt_size_t size)
 {
@@ -420,94 +585,99 @@ void rt_hw_camera_photosensor_register(void)
 //  rt_device_set_rx_indicate((rt_device_t)gpio_device, gpio_user_data->gpio_exti_rx_indicate);
 //}
 
-/* gsm_ring device 
+/* gsm_ring device */
 gpio_device gsm_ring_device;
 rt_timer_t gsm_ring_exti_timer = RT_NULL;
 
 void gsm_ring_exti_timeout(void *parameters)
 {
-  time_t time;
+    //time_t time;
 
-  rt_device_t device = RT_NULL;
-  rt_device_t g_stat_dev = RT_NULL;
-  uint8_t data,gstat;
+    rt_device_t device = RT_NULL;
+    rt_device_t g_stat_dev = RT_NULL;
+    uint8_t data,gstat;
 
-  device = rt_device_find(DEVICE_NAME_GSM_RING);
-  g_stat_dev = rt_device_find(DEVICE_NAME_GSM_STATUS);
-  if (device != RT_NULL)
-  {
+    device = rt_device_find(DEVICE_NAME_GSM_RING);
+    //g_stat_dev = rt_device_find(DEVICE_NAME_GSM_STATUS);
+    if (device != RT_NULL)
+    {
+
     rt_device_read(device,0,&data,0);
     rt_device_read(g_stat_dev,0,&gstat,1);
     if (data == GSM_RING_DETECT_STATUS && gstat != 0) // gsm ring
     {
-      // produce mail
+        rt_kprintf("it is gsm ring detect!\n");
+        /*
+        // produce mail
       RT_ASSERT(rtc_device != RT_NULL);
       rt_device_control(rtc_device, RT_DEVICE_CTRL_RTC_GET_TIME, &time);
 
       // send mail
       send_alarm_mail(ALARM_TYPE_GSM_RING, ALARM_PROCESS_FLAG_LOCAL, GSM_RING_DETECT_STATUS, time);
 
-			// device is none activate
+            // device is none activate
       if(!device_parameters.device_statu)
       {
-				device_activate_deal(RT_TRUE,0,0);
+                device_activate_deal(RT_TRUE,0,0);
       }
+        */
     }
     else
     {
-			RT_DEBUG_LOG(PRINTF_RING_HW_CASE,("ring error Ring_pin = %d GSM_stat = %d\n",data,gstat));
+            //RT_DEBUG_LOG(PRINTF_RING_HW_CASE,("ring error Ring_pin = %d GSM_stat = %d\n",data,gstat));
     }
     rt_device_control(device, RT_DEVICE_CTRL_UNMASK_EXTI, (void *)0);
-  }
+    }
 
-  rt_timer_stop(gsm_ring_exti_timer);
+    rt_timer_stop(gsm_ring_exti_timer);
 }
 
 rt_err_t gsm_ring_rx_ind(rt_device_t dev, rt_size_t size)
 {
-  rt_device_t device = RT_NULL;
+    rt_device_t device = RT_NULL;
 
-  device = rt_device_find(DEVICE_NAME_GSM_RING);
-  RT_ASSERT(device != RT_NULL);
-  rt_device_control(device, RT_DEVICE_CTRL_MASK_EXTI, (void *)0);
-  rt_timer_start(gsm_ring_exti_timer);
-  return RT_EOK;
+    device = rt_device_find(DEVICE_NAME_GSM_RING);
+    RT_ASSERT(device != RT_NULL);
+    rt_device_control(device, RT_DEVICE_CTRL_MASK_EXTI, (void *)0);
+    rt_timer_start(gsm_ring_exti_timer);
+    return RT_EOK;
 }
 
 struct gpio_exti_user_data gsm_ring_user_data = 
 {
-  DEVICE_NAME_GSM_RING,
-  GPIOD,
-  GPIO_Pin_13,
-  GPIO_Mode_IN_FLOATING,
-  GPIO_Speed_50MHz,
-  RCC_APB2Periph_GPIOD |RCC_APB2Periph_AFIO,
-  GPIO_PortSourceGPIOD,
-  GPIO_PinSource13,
-  EXTI_Line13,
-  EXTI_Mode_Interrupt,
-  GSM_RING_EXTI_TRIGGER_MODE,
-  EXTI15_10_IRQn,
-  1,
-  5,
-  gsm_ring_rx_ind,
+    DEVICE_NAME_GSM_RING,
+    GPIOC,
+    GPIO_Pin_15,
+    GPIO_Mode_IN_FLOATING,
+    GPIO_Speed_50MHz,
+    RCC_APB2Periph_GPIOC |RCC_APB2Periph_AFIO,
+    GPIO_PortSourceGPIOC,
+    GPIO_PinSource15,
+    EXTI_Line15,
+    EXTI_Mode_Interrupt,
+    GSM_RING_EXTI_TRIGGER_MODE,
+    EXTI15_10_IRQn,
+    1,
+    5,
+    gsm_ring_rx_ind,
 };
 
-void rt_hw_gsm_ring_register(void)
+int rt_hw_gsm_ring_register(void)
 {
-  gpio_device *gpio_device = &gsm_ring_device;
-  struct gpio_exti_user_data *gpio_user_data = &gsm_ring_user_data;
+    gpio_device *gpio_device = &gsm_ring_device;
+    struct gpio_exti_user_data *gpio_user_data = &gsm_ring_user_data;
 
-  gpio_device->ops = &gpio_exti_user_ops;
-  rt_hw_gpio_register(gpio_device, gpio_user_data->name, (RT_DEVICE_FLAG_RDWR | RT_DEVICE_FLAG_INT_RX), gpio_user_data);
-  gsm_ring_exti_timer = rt_timer_create("g_ring",
+    gpio_device->ops = &gpio_exti_user_ops;
+    rt_hw_gpio_register(gpio_device, gpio_user_data->name, (RT_DEVICE_FLAG_RDWR | RT_DEVICE_FLAG_INT_RX), gpio_user_data);
+    gsm_ring_exti_timer = rt_timer_create("g_ring",
                                                gsm_ring_exti_timeout,
                                                RT_NULL,
                                                GSM_RING_INT_INTERVAL,
                                                RT_TIMER_FLAG_ONE_SHOT);
-  rt_device_set_rx_indicate((rt_device_t)gpio_device, gpio_user_data->gpio_exti_rx_indicate);
+    rt_device_set_rx_indicate((rt_device_t)gpio_device, gpio_user_data->gpio_exti_rx_indicate);
+    return 0;
 }
-*/
+
 /* lock_gate device 
 gpio_device lock_gate_device;
 
@@ -1070,17 +1240,46 @@ void EXTI9_5_IRQHandler(void)
   /* enter interrupt */
   rt_interrupt_enter();
   /* lock_shell exti isr */
-  if(EXTI_GetITStatus(EXTI_Line7) == SET)
+  if(EXTI_GetITStatus(EXTI_Line5) == SET)
   {
-    rt_hw_gpio_isr(&key_detect_device);
-    EXTI_ClearITPendingBit(EXTI_Line7);
+    rt_hw_gpio_isr(&key3_detect_device);
+    EXTI_ClearITPendingBit(EXTI_Line5);
+  }
+  if(EXTI_GetITStatus(EXTI_Line6) == SET)
+  {
+    rt_hw_gpio_isr(&key2_detect_device);
+    EXTI_ClearITPendingBit(EXTI_Line6);
   }
   /* leave interrupt */
   rt_interrupt_leave();
 }
 
-INIT_DEVICE_EXPORT(rt_hw_key_detect_register);
+void EXTI15_10_IRQHandler(void)
+{
+  extern void rt_hw_gpio_isr(gpio_device *gpio);
+  
+  /* enter interrupt */
+  rt_interrupt_enter();
+  /* lock_shell exti isr */
+  if(EXTI_GetITStatus(EXTI_Line12) == SET)
+  {
+    rt_hw_gpio_isr(&key1_detect_device);
+    EXTI_ClearITPendingBit(EXTI_Line12);
+  }
+  if(EXTI_GetITStatus(EXTI_Line15) == SET)
+  {
+    rt_hw_gpio_isr(&gsm_ring_device);
+    EXTI_ClearITPendingBit(EXTI_Line15);
+  }
+  
+  /* leave interrupt */
+  rt_interrupt_leave();
+}
 
+INIT_DEVICE_EXPORT(rt_hw_key1_detect_register);
+INIT_DEVICE_EXPORT(rt_hw_key2_detect_register);
+INIT_DEVICE_EXPORT(rt_hw_key3_detect_register);
+INIT_DEVICE_EXPORT(rt_hw_gsm_ring_register);
 #ifdef RT_USING_FINSH
 #include <finsh.h>
 void exti_open(const char *name)

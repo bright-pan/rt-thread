@@ -68,8 +68,8 @@
 // <bool name="RT_USING_SERIAL" description="Using Serial" default="true" />
 #define RT_USING_SERIAL
 // <bool name="RT_USING_SERIAL" description="Using Serial" default="true" />
-#define RT_USING_SPI
-#define RT_USING_RTC
+//#define RT_USING_SPI
+//#define RT_USING_RTC
 
 
 /* SECTION: Console options */
@@ -86,7 +86,7 @@
 #define FINSH_USING_DESCRIPTION
 
 /* SECTION: device filesystem */
-#define RT_USING_DFS
+//#define RT_USING_DFS
 
 #define RT_USING_DFS_ELMFAT
 /* Reentrancy (thread safe) of the FatFs module.  */

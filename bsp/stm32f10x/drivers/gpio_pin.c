@@ -186,27 +186,69 @@ void rt_hw_gsm_led_register(void)
   rt_hw_gpio_register(gpio_device, gpio_user_data->name, (RT_DEVICE_FLAG_RDWR), gpio_user_data);
 }
 */
-/* gsm power device 
+/* gsm power device */
 struct gpio_pin_user_data gsm_power_user_data = 
 {
-  DEVICE_NAME_GSM_POWER,
-  GPIOD,
-  GPIO_Pin_0,
-  GPIO_Mode_Out_PP,
-  GPIO_Speed_50MHz,
-  RCC_APB2Periph_GPIOD,
-  0,
+    DEVICE_NAME_GSM_POWER,
+    GPIOB,
+    GPIO_Pin_7,
+    GPIO_Mode_Out_PP,
+    GPIO_Speed_50MHz,
+    RCC_APB2Periph_GPIOB,
+    0,
 };
 gpio_device gsm_power_device;
-void rt_hw_gsm_power_register(void)
+int rt_hw_gsm_power_register(void)
 {
-  gpio_device *gpio_device = &gsm_power_device;
-  struct gpio_pin_user_data *gpio_user_data = &gsm_power_user_data;
+    gpio_device *gpio_device = &gsm_power_device;
+    struct gpio_pin_user_data *gpio_user_data = &gsm_power_user_data;
 
-  gpio_device->ops = &gpio_pin_user_ops;
-  rt_hw_gpio_register(gpio_device, gpio_user_data->name, (RT_DEVICE_FLAG_RDWR), gpio_user_data);
+    gpio_device->ops = &gpio_pin_user_ops;
+    rt_hw_gpio_register(gpio_device, gpio_user_data->name, (RT_DEVICE_FLAG_RDWR), gpio_user_data);
+    return 0;
 }
-*/
+/* gsm reset device */
+struct gpio_pin_user_data gsm_reset_user_data = 
+{
+    DEVICE_NAME_GSM_RESET,
+    GPIOB,
+    GPIO_Pin_3,
+    GPIO_Mode_Out_PP,
+    GPIO_Speed_50MHz,
+    RCC_APB2Periph_GPIOB,
+    0,
+};
+gpio_device gsm_reset_device;
+int rt_hw_gsm_reset_register(void)
+{
+    gpio_device *gpio_device = &gsm_reset_device;
+    struct gpio_pin_user_data *gpio_user_data = &gsm_reset_user_data;
+
+    gpio_device->ops = &gpio_pin_user_ops;
+    rt_hw_gpio_register(gpio_device, gpio_user_data->name, (RT_DEVICE_FLAG_RDWR), gpio_user_data);
+    return 0;
+}
+/* gsm status device */
+struct gpio_pin_user_data gsm_status_user_data = 
+{
+    DEVICE_NAME_GSM_STATUS,
+    GPIOC,
+    GPIO_Pin_14,
+    GPIO_Mode_IN_FLOATING,
+    GPIO_Speed_50MHz,
+    RCC_APB2Periph_GPIOC,
+    0,
+};
+gpio_device gsm_status_device;
+int rt_hw_gsm_status_register(void)
+{
+    gpio_device *gpio_device = &gsm_status_device;
+    struct gpio_pin_user_data *gpio_user_data = &gsm_status_user_data;
+
+    gpio_device->ops = &gpio_pin_user_ops;
+    rt_hw_gpio_register(gpio_device, gpio_user_data->name, (RT_DEVICE_FLAG_RDWR), gpio_user_data);
+    return 0;
+}
 /* gsm dtr device 
 struct gpio_pin_user_data gsm_dtr_user_data = 
 {
@@ -293,28 +335,29 @@ void rt_hw_voice_switch_register(void)
   rt_hw_gpio_register(gpio_device, gpio_user_data->name, (RT_DEVICE_FLAG_RDWR), gpio_user_data);
 }
 */
-/* voice amp device 
+/* voice amp device */
 struct gpio_pin_user_data voice_amp_user_data = 
 {
-  DEVICE_NAME_VOICE_AMP,
-  GPIOC,
-  GPIO_Pin_6,
-  GPIO_Mode_Out_PP,
-  GPIO_Speed_50MHz,
-  RCC_APB2Periph_GPIOC,
-  0,
+    DEVICE_NAME_VOICE_AMP,
+    GPIOD,
+    GPIO_Pin_15,
+    GPIO_Mode_Out_PP,
+    GPIO_Speed_50MHz,
+    RCC_APB2Periph_GPIOD,
+    0,
 };
 gpio_device voice_amp_device;
 
-void rt_hw_voice_amp_register(void)
+int rt_hw_voice_amp_register(void)
 {
-  gpio_device *gpio_device = &voice_amp_device;
-  struct gpio_pin_user_data *gpio_user_data = &voice_amp_user_data;
+    gpio_device *gpio_device = &voice_amp_device;
+    struct gpio_pin_user_data *gpio_user_data = &voice_amp_user_data;
 
-  gpio_device->ops = &gpio_pin_user_ops;  
-  rt_hw_gpio_register(gpio_device, gpio_user_data->name, (RT_DEVICE_FLAG_RDWR), gpio_user_data);
+    gpio_device->ops = &gpio_pin_user_ops;  
+    rt_hw_gpio_register(gpio_device, gpio_user_data->name, (RT_DEVICE_FLAG_RDWR), gpio_user_data);
+    return 0;
 }
-*/
+
 /* gsm led device
 struct gpio_pin_user_data test_user_data =
 {
@@ -337,7 +380,7 @@ void rt_hw_test_register(void)
   rt_hw_gpio_register(gpio_device, gpio_user_data->name, (RT_DEVICE_FLAG_RDWR), gpio_user_data);
 }
 */
-
+/*
 // motor status1 device
 gpio_device motor_status1_device;
 
@@ -430,12 +473,9 @@ int rt_hw_motor_status4_register(void)
 	rt_hw_gpio_register(gpio_device, gpio_user_data->name, (RT_DEVICE_FLAG_RDWR), gpio_user_data);
     return 0;
 }
+*/
 
-
-
-
-
-/* led 1 device */
+/* led 1 device 
 struct gpio_pin_user_data led1_user_data =
 {
     "led1",
@@ -457,8 +497,9 @@ int rt_hw_led1_register(void)
     rt_hw_gpio_register(gpio_device, gpio_user_data->name, (RT_DEVICE_FLAG_RDWR), gpio_user_data);
     return 0;
 }
+*/
 
-/* led 2 device */
+/* led 2 device 
 struct gpio_pin_user_data led2_user_data =
 {
     "led2",
@@ -480,8 +521,8 @@ int rt_hw_led2_register(void)
     rt_hw_gpio_register(gpio_device, gpio_user_data->name, (RT_DEVICE_FLAG_RDWR), gpio_user_data);
     return 0;
 }
-
-/* led logo device */
+*/
+/* led logo device 
 struct gpio_pin_user_data led_logo_user_data =
 {
     DEVICE_NAME_LOGO_LED,
@@ -503,7 +544,8 @@ int rt_hw_led_logo_register(void)
     rt_hw_gpio_register(gpio_device, gpio_user_data->name, (RT_DEVICE_FLAG_RDWR), gpio_user_data);
     return 0;
 }
-/* camera led device */
+*/
+/* camera led device 
 struct gpio_pin_user_data camera_led_user_data = 
 {
     DEVICE_NAME_CAMERA_LED,
@@ -525,7 +567,9 @@ int rt_hw_camera_led_register(void)
     rt_hw_gpio_register(gpio_device, gpio_user_data->name, (RT_DEVICE_FLAG_RDWR), gpio_user_data);
     return 0;
 }
-/* camera power device */
+*/
+
+/* camera power device 
 struct gpio_pin_user_data camera_power_user_data = 
 {
     DEVICE_NAME_CAMERA_POWER,
@@ -547,8 +591,8 @@ int rt_hw_camera_power_register(void)
     rt_hw_gpio_register(gpio_device, gpio_user_data->name, (RT_DEVICE_FLAG_RDWR), gpio_user_data);
     return 0;
 }
-
-/* camera usart tx pin input */
+*/
+/* camera usart tx pin input 
 gpio_device camera_TX_device;
 
 struct gpio_pin_user_data camera_TX_user_data = 
@@ -572,6 +616,8 @@ int rt_hw_camera_usart_tx(void)
     rt_hw_gpio_register(gpio_device, gpio_user_data->name, (RT_DEVICE_FLAG_RDWR), gpio_user_data);
     return 0;
 }
+*/
+
 /* camera photosensor device 
 gpio_device camera_photosensor_device;
 
@@ -641,7 +687,7 @@ uint8_t gpio_pin_input(char *str)
     }
     return dat;
 }	
-
+/*
 INIT_DEVICE_EXPORT(rt_hw_led1_register);
 INIT_DEVICE_EXPORT(rt_hw_led2_register);
 INIT_DEVICE_EXPORT(rt_hw_led_logo_register);
@@ -651,11 +697,11 @@ INIT_DEVICE_EXPORT(rt_hw_motor_status1_register);
 INIT_DEVICE_EXPORT(rt_hw_motor_status2_register);
 INIT_DEVICE_EXPORT(rt_hw_motor_status3_register);
 INIT_DEVICE_EXPORT(rt_hw_motor_status4_register);
-/*
-INIT_DEVICE_EXPORT(rt_hw_rtc_init);
-INIT_DEVICE_EXPORT(rt_hw_rtc_init);
-INIT_DEVICE_EXPORT(rt_hw_rtc_init);
 */
+INIT_DEVICE_EXPORT(rt_hw_gsm_power_register);
+INIT_DEVICE_EXPORT(rt_hw_gsm_status_register);
+INIT_DEVICE_EXPORT(rt_hw_gsm_reset_register);
+INIT_DEVICE_EXPORT(rt_hw_voice_amp_register);
 
 #ifdef RT_USING_FINSH
 #include <finsh.h>

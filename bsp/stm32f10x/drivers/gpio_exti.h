@@ -28,12 +28,13 @@
 //#define DEVICE_NAME_CAMERA_COVER "cm_cover"
 //#define DEVICE_NAME_CAMERA_IRDASENSOR "cm_irda"
 
-//#define DEVICE_NAME_GSM_RING "g_ring"
+#define DEVICE_NAME_GSM_RING "g_ring"
 
 //#define DEVICE_NAME_MOTOR_STATUS "mt_stat"
 
-#define DEVICE_NAME_KEY_DETECT "k_det"
-
+#define DEVICE_NAME_KEY1_DETECT "k1_det"
+#define DEVICE_NAME_KEY2_DETECT "k2_det"
+#define DEVICE_NAME_KEY3_DETECT "k3_det"
 //#define DEVICE_NAME_BATTERY_SWITCH "bat_sw" /* BATTERY DEVICE NAME */
 
 //#define DEVICE_NAME_BUTTON_ADJUST_IR "adjustIR"
@@ -41,13 +42,21 @@
 #define RT_DEVICE_CTRL_MASK_EXTI 0x15    /* mask exti */
 #define RT_DEVICE_CTRL_UNMASK_EXTI  0x16    /* unmask exti */
 
-#define KEY_EXTI_TRIGGER_MODE EXTI_Trigger_Rising
-#define KEY_DETECT_STATUS 1
-#define KEY_INT_INTERVAL 100
+#define KEY1_EXTI_TRIGGER_MODE EXTI_Trigger_Rising
+#define KEY1_DETECT_STATUS 1
+#define KEY1_INT_INTERVAL 100
 
-//#define GSM_RING_EXTI_TRIGGER_MODE EXTI_Trigger_Rising
-//#define GSM_RING_DETECT_STATUS 1
-//#define GSM_RING_INT_INTERVAL 1
+#define KEY2_EXTI_TRIGGER_MODE EXTI_Trigger_Rising
+#define KEY2_DETECT_STATUS 1
+#define KEY2_INT_INTERVAL 100
+
+#define KEY3_EXTI_TRIGGER_MODE EXTI_Trigger_Rising
+#define KEY3_DETECT_STATUS 1
+#define KEY3_INT_INTERVAL 100
+
+#define GSM_RING_EXTI_TRIGGER_MODE EXTI_Trigger_Rising
+#define GSM_RING_DETECT_STATUS 1
+#define GSM_RING_INT_INTERVAL 1
 
 //#define LOCK_GATE_EXTI_TRIGGER_MODE EXTI_Trigger_Rising
 //#define LOCK_GATE_DETECT_STATUS 1

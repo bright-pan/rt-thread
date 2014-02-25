@@ -10,11 +10,10 @@ board.c
 stm32f10x_it.c
 led.c
 usart.c
-spibus.c
-spiflash.c
 gpio.c
 gpio_pin.c
 gpio_exti.c
+gpio_adc.c
 """)
 
 # add Ethernet drvers.
